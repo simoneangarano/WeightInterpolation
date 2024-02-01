@@ -5,3 +5,5 @@ scripts.sh
 output/
 .ipynb_checkpoints
 initialize/
+bin/
+results/

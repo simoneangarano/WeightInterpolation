@@ -1,4 +1,3 @@
-import torch
 from torch import optim as optim
 
 from timm.optim.adafactor import Adafactor
@@ -14,11 +13,11 @@ from timm.optim.sgdp import SGDP
 
 import json
 
-try:
-    from apex.optimizers import FusedNovoGrad, FusedAdam, FusedLAMB, FusedSGD
-    has_apex = True
-except ImportError:
-    has_apex = False
+# try:
+#     from apex.optimizers import FusedNovoGrad, FusedAdam, FusedLAMB, FusedSGD
+#     has_apex = True
+# except ImportError:
+# has_apex = False
 
 
 def get_num_layer_for_convnext(var_name):
@@ -119,8 +118,8 @@ def create_optimizer(args, model, get_num_layer=None, get_layer_scale=None, filt
     else:
         parameters = model.parameters()
 
-    if 'fused' in opt_lower:
-        assert has_apex and torch.cuda.is_available(), 'APEX and CUDA required for fused optimizers'
+    # if 'fused' in opt_lower:
+    #     assert has_apex and torch.cuda.is_available(), 'APEX and CUDA required for fused optimizers'
 
     opt_args = dict(lr=args.lr, weight_decay=weight_decay)
     if hasattr(args, 'opt_eps') and args.opt_eps is not None:
@@ -160,25 +159,25 @@ def create_optimizer(args, model, get_num_layer=None, get_layer_scale=None, filt
         optimizer = optim.RMSprop(parameters, alpha=0.9, momentum=args.momentum, **opt_args)
     elif opt_lower == 'rmsproptf':
         optimizer = RMSpropTF(parameters, alpha=0.9, momentum=args.momentum, **opt_args)
-    elif opt_lower == 'novograd':
-        optimizer = NovoGrad(parameters, **opt_args)
-    elif opt_lower == 'nvnovograd':
-        optimizer = NvNovoGrad(parameters, **opt_args)
-    elif opt_lower == 'fusedsgd':
-        opt_args.pop('eps', None)
-        optimizer = FusedSGD(parameters, momentum=args.momentum, nesterov=True, **opt_args)
-    elif opt_lower == 'fusedmomentum':
-        opt_args.pop('eps', None)
-        optimizer = FusedSGD(parameters, momentum=args.momentum, nesterov=False, **opt_args)
-    elif opt_lower == 'fusedadam':
-        optimizer = FusedAdam(parameters, adam_w_mode=False, **opt_args)
-    elif opt_lower == 'fusedadamw':
-        optimizer = FusedAdam(parameters, adam_w_mode=True, **opt_args)
-    elif opt_lower == 'fusedlamb':
-        optimizer = FusedLAMB(parameters, **opt_args)
-    elif opt_lower == 'fusednovograd':
-        opt_args.setdefault('betas', (0.95, 0.98))
-        optimizer = FusedNovoGrad(parameters, **opt_args)
+    # elif opt_lower == 'novograd':
+    #     optimizer = NovoGrad(parameters, **opt_args)
+    # elif opt_lower == 'nvnovograd':
+    #     optimizer = NvNovoGrad(parameters, **opt_args)
+    # elif opt_lower == 'fusedsgd':
+    #     opt_args.pop('eps', None)
+    #     optimizer = FusedSGD(parameters, momentum=args.momentum, nesterov=True, **opt_args)
+    # elif opt_lower == 'fusedmomentum':
+    #     opt_args.pop('eps', None)
+    #     optimizer = FusedSGD(parameters, momentum=args.momentum, nesterov=False, **opt_args)
+    # elif opt_lower == 'fusedadam':
+    #     optimizer = FusedAdam(parameters, adam_w_mode=False, **opt_args)
+    # elif opt_lower == 'fusedadamw':
+    #     optimizer = FusedAdam(parameters, adam_w_mode=True, **opt_args)
+    # elif opt_lower == 'fusedlamb':
+    #     optimizer = FusedLAMB(parameters, **opt_args)
+    # elif opt_lower == 'fusednovograd':
+    #     opt_args.setdefault('betas', (0.95, 0.98))
+    #     optimizer = FusedNovoGrad(parameters, **opt_args)
     else:
         assert False and "Invalid optimizer"
 

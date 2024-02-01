@@ -9,7 +9,7 @@ from timm.utils import get_state_dict
 from pathlib import Path
 
 import torch
-from torch._six import inf
+from torch import inf
 from timm.models import create_model
 import torch.distributed as dist
 # from tensorboardX import SummaryWriter
@@ -438,7 +438,7 @@ def cosine_scheduler(base_value, final_value, epochs, niter_per_ep, warmup_epoch
 def save_model(args, epoch, model, model_without_ddp, optimizer, loss_scaler, model_ema=None):
     output_dir = Path(args.output_dir)
     epoch_name = str(epoch)
-    checkpoint_paths = [output_dir / ('checkpoint-%s.pth' % epoch_name)]
+    checkpoint_paths = [output_dir / (f'checkpoint_{epoch_name}_{args.name}.pth')]
     for checkpoint_path in checkpoint_paths:
         to_save = {
             'model': model_without_ddp.state_dict(),
@@ -464,14 +464,14 @@ def auto_load_model(args, model, model_without_ddp, optimizer, loss_scaler, mode
     output_dir = Path(args.output_dir)
     if args.auto_resume and len(args.resume) == 0:
         import glob
-        all_checkpoints = glob.glob(os.path.join(output_dir, 'checkpoint-*.pth'))
+        all_checkpoints = glob.glob(os.path.join(output_dir, f'checkpoint_*_{args.name}.pth'))
         latest_ckpt = -1
         for ckpt in all_checkpoints:
             t = ckpt.split('-')[-1].split('.')[0]
             if t.isdigit():
                 latest_ckpt = max(int(t), latest_ckpt)
         if latest_ckpt >= 0:
-            args.resume = os.path.join(output_dir, 'checkpoint-%d.pth' % latest_ckpt)
+            args.resume = os.path.join(output_dir, f'checkpoint_{latest_ckpt}_{args.name}.pth')
         print("Auto resume checkpoint: %s" % args.resume)
 
     if args.resume:
@@ -525,7 +525,7 @@ def reg_scheduler(base_value, final_value, epochs, niter_per_ep, early_epochs=0,
 
 def calculate_distance(args, model_without_ddp, device):
     output_dir = Path(args.output_dir)
-    start_path = os.path.join(output_dir, 'checkpoint-start.pth')
+    start_path = os.path.join(output_dir, f'checkpoint_start_{args.name}.pth')
     if not os.path.exists(start_path):
         return -1
     model_start = build_model(args)

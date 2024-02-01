@@ -155,6 +155,7 @@ def get_args_parser():
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--seed', default=0, type=int)
+    parser.add_argument('--name', type=str, default='')
 
     parser.add_argument('--resume', default='',
                         help='resume from checkpoint')
@@ -442,7 +443,7 @@ def main(args):
         if args.output_dir and utils.is_main_process():
             if log_writer is not None:
                 log_writer.flush()
-            with open(os.path.join(args.output_dir, "log.txt"), mode="a", encoding="utf-8") as f:
+            with open(os.path.join(args.output_dir, f"log_{args.name}.txt"), mode="a", encoding="utf-8") as f:
                 f.write(json.dumps(log_stats) + "\n")
 
         if wandb_logger:
